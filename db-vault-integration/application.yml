@@ -9,8 +9,8 @@ metadata:
     vault.hashicorp.com/agent-inject-secret-db-creds.txt: "secret/data/db-creds"
     vault.hashicorp.com/agent-inject-template-db-creds.txt: |
       {{- with secret "secret/data/db-creds" -}}
-      username={{ .Data.data.username }}
-      password={{ .Data.data.password }}
+      export DB_USER="{{ .Data.data.username }}"
+      export DB_PASS="{{ .Data.data.password }}"
       {{- end }}
 spec:
   serviceAccountName: db-app
