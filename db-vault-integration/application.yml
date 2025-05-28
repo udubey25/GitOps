@@ -1,29 +1,23 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: v1
+kind: Pod
 metadata:
   name: db-app
-  labels:
-    app: db-app
+  namespace: default
+  annotations:
+    vault.hashicorp.com/agent-inject: "true"
+    vault.hashicorp.com/role: "db-app"
+    vault.hashicorp.com/agent-inject-secret-db-creds.txt: "secret/data/db-creds"
+    vault.hashicorp.com/agent-inject-template-db-creds.txt: |
+      {{- with secret "secret/data/db-creds" -}}
+      username={{ .Data.data.username }}
+      password={{ .Data.data.password }}
+      {{- end }}
 spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: db-app
-  template:
-    metadata:
-      annotations:
-        vault.hashicorp.com/agent-inject: "true"
-        vault.hashicorp.com/role: "db-app"
-        vault.hashicorp.com/agent-inject-secret-db-creds.txt: "secret/data/db-creds"
-        vault.hashicorp.com/agent-inject-template-db-creds.txt: |
-          {{- with secret "secret/data/db-creds" -}}
-          username={{ .Data.data.username }}
-          password={{ .Data.data.password }}
-          {{- end }}
-    spec:
-      serviceAccountName: db-app
-      containers:
-      - name: app
-        image: alpine
-        command: ["/bin/sh"]
-        args: ["-c", "cat /vault/secrets/db-creds.txt && sleep 3600"]
+  serviceAccountName: db-app
+  containers:
+    - name: app
+      image: postgres
+      envFrom:
+        - secretRef:
+            name: dummy-secret # not used, just placeholder if needed
+      command: [ "sleep", "3600" ]
