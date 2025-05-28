@@ -6,9 +6,9 @@ metadata:
   annotations:
     vault.hashicorp.com/agent-inject: "true"
     vault.hashicorp.com/role: "db-app"
-    vault.hashicorp.com/agent-inject-secret-db-creds.txt: "/v1/secret/data/data/db-creds"
+    vault.hashicorp.com/agent-inject-secret-db-creds.txt: "secret/data/db-creds"
     vault.hashicorp.com/agent-inject-template-db-creds.txt: |
-      {{- with secret "/v1/secret/data/data/db-creds" -}}
+      {{- with secret "secret/data/db-creds" -}}
       username={{ .Data.data.username }}
       password={{ .Data.data.password }}
       {{- end }}
